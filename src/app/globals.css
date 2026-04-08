@@ -1,0 +1,225 @@
+@import "tailwindcss";
+
+:root {
+  --background: #000000;
+  --foreground: #ffffff;
+  --primary: #6366f1;
+  --primary-foreground: #ffffff;
+  --secondary: #111111;
+  --secondary-foreground: #ffffff;
+  --accent: #818cf8;
+  --accent-foreground: #ffffff;
+  --card: #0a0a0a;
+  --card-foreground: #ffffff;
+  --border: #888888;
+  --input: #888888;
+  --ring: #6366f1;
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --error: #f87171;
+  --muted: #ffffff;
+  --muted-foreground: #cccccc;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --font-jetbrains: var(--font-jetbrains);
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+body {
+  font-family: var(--font-jetbrains), monospace;
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.timer-display {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  font-weight: 300;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--muted);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* ASCII Art Interface Style */
+.ascii-interface {
+  background: var(--background);
+  border: 1px solid var(--border);
+  position: relative;
+  font-family: 'Courier New', monospace;
+}
+
+.ascii-border {
+  border: 1px solid var(--border);
+  position: relative;
+}
+
+.ascii-border::before {
+  content: '┌─────────────────────────────────────────┐';
+  position: absolute;
+  top: -12px;
+  left: 0;
+  font-size: 10px;
+  color: var(--muted);
+  font-family: 'Courier New', monospace;
+  white-space: pre;
+}
+
+.ascii-border::after {
+  content: '└─────────────────────────────────────────┘';
+  position: absolute;
+  bottom: -12px;
+  left: 0;
+  font-size: 10px;
+  color: var(--muted);
+  font-family: 'Courier New', monospace;
+  white-space: pre;
+}
+
+.ascii-header {
+  border-bottom: 1px solid var(--border);
+  padding: 8px 12px;
+  background: var(--secondary);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--foreground);
+  font-weight: bold;
+  font-family: 'Courier New', monospace;
+}
+
+.ascii-section {
+  padding: 12px;
+  position: relative;
+  border: 1px solid var(--border);
+  margin: 8px 0;
+}
+
+.ascii-section::before {
+  content: '+----------------------------------------+';
+  position: absolute;
+  top: -8px;
+  left: 0;
+  font-size: 9px;
+  color: var(--muted);
+  font-family: 'Courier New', monospace;
+}
+
+.ascii-section::after {
+  content: '+----------------------------------------+';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  font-size: 9px;
+  color: var(--muted);
+  font-family: 'Courier New', monospace;
+}
+
+/* ASCII Dots Pattern Background - ENABLED with subtle dots */
+.ascii-dots {
+  background-image: radial-gradient(circle, #333 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-color: var(--background);
+}
+
+/* Timer Style - JetBrains Mono */
+.timer-ascii {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  letter-spacing: 0.05em;
+  color: var(--foreground);
+  font-weight: 500;
+}
+
+/* ASCII Text Elements */
+.ascii-text {
+  font-family: 'Courier New', monospace;
+  color: var(--foreground);
+}
+
+.ascii-muted {
+  font-family: 'Courier New', monospace;
+  color: var(--muted-foreground);
+}
+
+/* ASCII Button Style */
+.ascii-btn {
+  background: var(--secondary);
+  border: 1px solid var(--border);
+  padding: 8px 16px;
+  font-family: 'Courier New', monospace;
+  color: var(--foreground);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ascii-btn:hover {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+/* Smooth transitions */
+* {
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Selection color - uses CSS variable for black theme */
+::selection {
+  background: var(--selection-bg, var(--primary));
+  color: var(--foreground);
+}
+
+::-moz-selection {
+  background: var(--selection-bg, var(--primary));
+  color: var(--foreground);
+}
