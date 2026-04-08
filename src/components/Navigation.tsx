@@ -10,12 +10,11 @@ export function Navigation() {
   const navItems = [
     { href: '/', label: 'Timer', icon: Timer },
     { href: '/stats', label: 'Statistics', icon: BarChart3 },
-    { href: '/settings', label: 'Settings', icon: Settings },
-    { href: '/admin', label: 'Admin', icon: Shield }
+    { href: '/settings', label: 'Settings', icon: Settings }
   ]
 
   return (
-    <nav className="bg-card border border-border rounded-lg p-2 mb-6">
+    <nav className="bg-card border border-border rounded-xl p-2 mb-6 ascii-interface">
       <div className="flex justify-center">
         <div className="flex gap-2">
           {navItems.map((item) => {
@@ -26,7 +25,7 @@ export function Navigation() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-colors ascii-btn ${
                   isActive 
                     ? 'bg-primary text-primary-foreground' 
                     : 'hover:bg-secondary text-muted-foreground hover:text-foreground'

@@ -1,13 +1,15 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useTimerStore, THEMES } from '@/store/useTimerStore'
+import { useTimerStore } from '@/store/useTimerStore'
 import { generateScramble } from '@/utils/scrambleGenerator'
+import { useTheme } from '@/hooks/useTheme'
 import { Play, RotateCcw, X, BarChart3, Menu, X as Close } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 export function MinimalisticLayout() {
+  const { changeTheme, themes, currentTheme } = useTheme()
   const {
     isRunning,
     isReady,
@@ -16,7 +18,6 @@ export function MinimalisticLayout() {
     solves,
     currentEvent,
     currentScramble,
-    settings,
     startTimer,
     stopTimer,
     resetTimer,
@@ -24,35 +25,14 @@ export function MinimalisticLayout() {
     setScramble,
     updateSolvePenalty,
     removeSolve,
-    setEvent,
-    updateSettings
+    setEvent
   } = useTimerStore()
 
   const [displayTime, setDisplayTime] = useState(0)
-  const [isInspecting, setIsInspecting] = useState(false)
-  const [inspectionStartTime, setInspectionStartTime] = useState(0)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const pathname = usePathname()
 
-  const currentTheme = THEMES[settings.theme as keyof typeof THEMES]
-
-  // Apply theme CSS variables and selection color
-  useEffect(() => {
-    const root = document.documentElement
-    if (currentTheme) {
-      Object.entries(currentTheme).forEach(([key, value]) => {
-        root.style.setProperty(`--${key}`, value)
-      })
-      
-      // Apply selection color for black theme only
-      if (settings.theme === 'black') {
-        document.body.style.setProperty('--selection-bg', 'rgba(255, 255, 255, 0.2)')
-      } else {
-        document.body.style.removeProperty('--selection-bg')
-      }
-    }
-  }, [currentTheme, settings.theme])
-
+  
   // Generate new scramble when event changes
   useEffect(() => {
     const newScramble = generateScramble(currentEvent)
@@ -67,30 +47,14 @@ export function MinimalisticLayout() {
       interval = setInterval(() => {
         setDisplayTime(Date.now() - startTime)
       }, 10)
-    } else if (isInspecting) {
-      interval = setInterval(() => {
-        const elapsed = Math.floor((Date.now() - inspectionStartTime) / 1000)
-        const remaining = Math.max(0, 15 - elapsed)
-        setDisplayTime(remaining * 1000)
-        
-        if (remaining === 0) {
-          setIsInspecting(false)
-          startTimer()
-        }
-      }, 100)
     } else {
       setDisplayTime(currentTime)
     }
 
     return () => clearInterval(interval)
-  }, [isRunning, startTime, currentTime, isInspecting, inspectionStartTime, startTimer])
+  }, [isRunning, startTime, currentTime])
 
   const formatTime = useCallback((time: number): string => {
-    if (isInspecting) {
-      const seconds = Math.floor(time / 1000)
-      return `0:${seconds.toString().padStart(2, '0')}`
-    }
-
     const minutes = Math.floor(time / 60000)
     const seconds = Math.floor((time % 60000) / 1000)
     const milliseconds = Math.floor((time % 1000) / 10)
@@ -100,19 +64,12 @@ export function MinimalisticLayout() {
     } else {
       return `${seconds}.${milliseconds.toString().padStart(2, '0')}`
     }
-  }, [isInspecting])
+  }, [])
 
-  const handleSpaceDown = useCallback(() => {
-    if (!isRunning && !isReady && !isInspecting) {
-      setIsInspecting(true)
-      setInspectionStartTime(Date.now())
-    } else if (isReady) {
-      startTimer()
-    }
-  }, [isRunning, isReady, isInspecting, startTimer])
-
-  const handleSpaceUp = useCallback(() => {
+  const handleKeyPress = useCallback((e: KeyboardEvent) => {
+    // Start or stop timer on any key press (toggle behavior)
     if (isRunning) {
+      // Stop timer and save solve
       stopTimer()
       const finalTime = Date.now() - (startTime || 0)
       addSolve({
@@ -123,45 +80,26 @@ export function MinimalisticLayout() {
       })
       const newScramble = generateScramble(currentEvent)
       setScramble(newScramble)
-    } else if (isInspecting) {
-      setIsInspecting(false)
+    } else {
+      // Start timer
       startTimer()
     }
-  }, [isRunning, isReady, isInspecting, startTime, stopTimer, addSolve, currentScramble, currentEvent, setScramble, startTimer])
-
-  const handleKeyPress = useCallback((e: KeyboardEvent) => {
-    if (e.code === 'Space') {
-      e.preventDefault()
-      if (e.type === 'keydown') {
-        handleSpaceDown()
-      } else if (e.type === 'keyup') {
-        handleSpaceUp()
-      }
-    }
-  }, [handleSpaceDown, handleSpaceUp])
+  }, [isRunning, startTime, stopTimer, addSolve, currentScramble, currentEvent, setScramble, startTimer])
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyPress)
-    window.addEventListener('keyup', handleKeyPress)
     return () => {
       window.removeEventListener('keydown', handleKeyPress)
-      window.removeEventListener('keyup', handleKeyPress)
     }
   }, [handleKeyPress])
 
   const getTimerColor = () => {
-    if (isInspecting) {
-      if (displayTime <= 2000) return 'text-green-400'
-      if (displayTime <= 8000) return 'text-yellow-400'
-      return 'text-red-400'
-    }
     if (isRunning) return 'text-green-400'
     if (isReady) return 'text-yellow-400'
     return 'text-foreground'
   }
 
   const getTimerStatus = () => {
-    if (isInspecting) return 'Inspection'
     if (isRunning) return 'Running'
     if (isReady) return 'Ready'
     return 'Press Space'
@@ -193,7 +131,7 @@ export function MinimalisticLayout() {
       <div className="border-b border-border p-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="text-sm font-mono text-white">
-            [ CUBY TIMER v1.0 ]
+            [ CUBY TIMER V2.0 ]
           </div>
           <div className="text-sm font-mono text-muted-foreground">
             [ {currentEvent} ]
@@ -260,19 +198,21 @@ export function MinimalisticLayout() {
 
             {/* Theme Section */}
             <div className="ascii-section mb-4">
-              <div className="ascii-header">THEME</div>
+              <div className="ascii-header">VS CODE THEMES</div>
               <div className="p-2">
                 <select
-                  value={settings.theme}
-                  onChange={(e) => updateSettings({ theme: e.target.value as any })}
+                  value={currentTheme.name}
+                  onChange={(e) => {
+                    const theme = themes.find(t => t.name === e.target.value)
+                    if (theme) changeTheme(theme)
+                  }}
                   className="w-full bg-background border border-border px-2 py-1 text-foreground focus:outline-none font-mono text-sm"
                 >
-                  <option value="catppuccin">Catppuccin</option>
-                  <option value="cyberpunk">Cyberpunk</option>
-                  <option value="matcha-dark">Matcha Dark</option>
-                  <option value="matcha-light">Matcha Light</option>
-                  <option value="kimbie-dark">Kimbie Dark</option>
-                  <option value="black">Black</option>
+                  {themes.map((theme) => (
+                    <option key={theme.name} value={theme.name}>
+                      {theme.name}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -380,7 +320,7 @@ export function MinimalisticLayout() {
       {/* Footer */}
       <div className="border-t border-border p-2">
         <div className="max-w-6xl mx-auto text-center font-mono text-xs text-muted-foreground">
-          [ PRESS_SPACE_TO_START ] [ ESC_TO_RESET ]
+          [ PRESS_ANY_KEY_TO_START_STOP ] [ CLICK_RESET_BUTTON ]
         </div>
       </div>
 

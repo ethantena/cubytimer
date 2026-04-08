@@ -1,24 +1,24 @@
 @import "tailwindcss";
 
 :root {
-  --background: #000000;
-  --foreground: #ffffff;
+  --background: #ffffff;
+  --foreground: #000000;
   --primary: #6366f1;
   --primary-foreground: #ffffff;
-  --secondary: #111111;
-  --secondary-foreground: #ffffff;
+  --secondary: #f3f4f6;
+  --secondary-foreground: #000000;
   --accent: #818cf8;
   --accent-foreground: #ffffff;
-  --card: #0a0a0a;
-  --card-foreground: #ffffff;
-  --border: #888888;
-  --input: #888888;
+  --card: #ffffff;
+  --card-foreground: #000000;
+  --border: #e5e7eb;
+  --input: #e5e7eb;
   --ring: #6366f1;
   --success: #4ade80;
   --warning: #fbbf24;
   --error: #f87171;
-  --muted: #ffffff;
-  --muted-foreground: #cccccc;
+  --muted: #000000;
+  --muted-foreground: #666666;
 }
 
 @theme inline {
@@ -77,10 +77,12 @@ a {
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-track {
   background: var(--secondary);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -96,12 +98,14 @@ a {
 .ascii-interface {
   background: var(--background);
   border: 1px solid var(--border);
+  border-radius: 12px;
   position: relative;
   font-family: 'Courier New', monospace;
 }
 
 .ascii-border {
   border: 1px solid var(--border);
+  border-radius: 12px;
   position: relative;
 }
 
@@ -143,6 +147,7 @@ a {
   padding: 12px;
   position: relative;
   border: 1px solid var(--border);
+  border-radius: 8px;
   margin: 8px 0;
 }
 
@@ -168,7 +173,7 @@ a {
 
 /* ASCII Dots Pattern Background - ENABLED with subtle dots */
 .ascii-dots {
-  background-image: radial-gradient(circle, #333 1px, transparent 1px);
+  background-image: radial-gradient(circle, #e5e7eb 1px, transparent 1px);
   background-size: 32px 32px;
   background-color: var(--background);
 }
@@ -196,6 +201,7 @@ a {
 .ascii-btn {
   background: var(--secondary);
   border: 1px solid var(--border);
+  border-radius: 8px;
   padding: 8px 16px;
   font-family: 'Courier New', monospace;
   color: var(--foreground);

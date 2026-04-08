@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useTimerStore } from '@/store/useTimerStore'
 import { Settings, Palette, Type, User, Trash2, Save, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import { ThemeSelector } from '@/components/ThemeSelector'
 
 export default function SettingsPage() {
   const { settings, updateSettings, clearAllSolves, solves } = useTimerStore()
@@ -23,14 +24,6 @@ export default function SettingsPage() {
     { id: 'jetbrains', name: 'JetBrains Mono' },
     { id: 'inter', name: 'Inter' },
     { id: 'mono', name: 'System Mono' }
-  ]
-
-  const inspectionTimes = [
-    { value: 0, label: 'None' },
-    { value: 5, label: '5 seconds' },
-    { value: 10, label: '10 seconds' },
-    { value: 15, label: '15 seconds' },
-    { value: 30, label: '30 seconds' }
   ]
 
   const handleThemeChange = (theme: string) => {
@@ -80,19 +73,19 @@ export default function SettingsPage() {
 
   
   return (
-    <div className="min-h-screen bg-background text-foreground p-8">
+    <div className="min-h-screen bg-background text-foreground p-8 ascii-dots">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-center gap-4 mb-8 ascii-interface p-6">
           <Link
             href="/"
-            className="p-2 hover:bg-secondary rounded-lg transition-colors"
+            className="p-2 hover:bg-secondary rounded-xl transition-colors ascii-btn"
           >
             <ArrowLeft size={20} />
           </Link>
           <div>
-            <h1 className="text-3xl font-light">Settings</h1>
-            <p className="text-muted-foreground">Customize your timer experience</p>
+            <h1 className="text-3xl font-light ascii-text">Settings</h1>
+            <p className="text-muted-foreground ascii-muted">Customize your timer experience</p>
           </div>
         </div>
 
@@ -103,98 +96,43 @@ export default function SettingsPage() {
           </div>
         )}
 
+        {/* VS Code Theme Selector */}
+        <ThemeSelector />
+
         {/* Appearance Settings */}
-        <div className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-6 mb-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 bg-primary/20 rounded-lg">
-              <Palette className="text-primary" size={20} />
-            </div>
-            <h2 className="text-xl font-light">Appearance</h2>
-          </div>
-
-          {/* Theme Selection */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-muted-foreground mb-3">Theme</label>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-              {themes.map((theme) => (
-                <button
-                  key={theme.id}
-                  onClick={() => handleThemeChange(theme.id)}
-                  className={`p-3 rounded-xl border-2 transition-all ${
-                    settings.theme === theme.id 
-                      ? 'border-primary bg-primary/10' 
-                      : 'border-border hover:border-primary/50'
-                  }`}
-                >
-                  <div 
-                    className="w-full h-8 rounded-lg mb-2" 
-                    style={{ backgroundColor: theme.colors.bg }}
-                  />
-                  <div className="text-sm font-medium">{theme.name}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Font Selection */}
-          <div>
-            <label className="block text-sm font-medium text-muted-foreground mb-3">Font</label>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              {fonts.map((font) => (
-                <button
-                  key={font.id}
-                  onClick={() => handleFontChange(font.id)}
-                  className={`p-3 rounded-xl border-2 transition-all ${
-                    settings.font === font.id 
-                      ? 'border-primary bg-primary/10' 
-                      : 'border-border hover:border-primary/50'
-                  }`}
-                >
-                  <div className="text-sm font-medium">{font.name}</div>
-                  <div className="text-xs text-muted-foreground mt-1" style={{ fontFamily: font.id === 'jetbrains' ? 'JetBrains Mono, monospace' : font.id }}>
-                    Sample text 123
-                  </div>
-                </button>
-              ))}
+        <div className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-6 mb-6 ascii-interface">
+          <div className="ascii-header">APPEARANCE</div>
+          <div className="mt-4">
+            {/* Font Selection */}
+            <div>
+              <label className="block text-sm font-medium text-muted-foreground mb-3">Font</label>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {fonts.map((font) => (
+                  <button
+                    key={font.id}
+                    onClick={() => handleFontChange(font.id)}
+                    className={`p-3 rounded-xl border-2 transition-all ascii-btn ${
+                      settings.font === font.id 
+                        ? 'border-primary bg-primary/10' 
+                        : 'border-border hover:border-primary/50'
+                    }`}
+                  >
+                    <div className="text-sm font-medium">{font.name}</div>
+                    <div className="text-xs text-muted-foreground mt-1" style={{ fontFamily: font.id === 'jetbrains' ? 'JetBrains Mono, monospace' : font.id }}>
+                      Sample text 123
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Timer Settings */}
-        <div className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-6 mb-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 bg-primary/20 rounded-lg">
-              <Settings className="text-primary" size={20} />
-            </div>
-            <h2 className="text-xl font-light">Timer Settings</h2>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-muted-foreground mb-3">Inspection Time</label>
-            <select
-              value={settings.inspectionTime}
-              onChange={(e) => updateSettings({ inspectionTime: parseInt(e.target.value) })}
-              className="w-full bg-secondary border border-border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              {inspectionTimes.map((time) => (
-                <option key={time.value} value={time.value}>
-                  {time.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
+        
         {/* WCA Account */}
-        <div className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-6 mb-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 bg-primary/20 rounded-lg">
-              <User className="text-primary" size={20} />
-            </div>
-            <h2 className="text-xl font-light">WCA Account</h2>
-          </div>
-
-          <div className="space-y-4">
+        <div className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-6 mb-6 ascii-interface">
+          <div className="ascii-header">WCA ACCOUNT</div>
+          <div className="mt-4 space-y-4">
             <div>
               <label className="block text-sm font-medium text-muted-foreground mb-2">WCA ID</label>
               <input
@@ -202,7 +140,7 @@ export default function SettingsPage() {
                 value={wcaId}
                 onChange={(e) => setWcaId(e.target.value)}
                 placeholder="e.g., 2023SMIT01"
-                className="w-full bg-secondary border border-border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full bg-secondary border border-border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary ascii-btn"
               />
             </div>
             <div>
@@ -212,12 +150,12 @@ export default function SettingsPage() {
                 value={wcaToken}
                 onChange={(e) => setWcaToken(e.target.value)}
                 placeholder="Enter your WCA API token"
-                className="w-full bg-secondary border border-border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full bg-secondary border border-border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary ascii-btn"
               />
             </div>
             <button
               onClick={handleWCASave}
-              className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-3 rounded-xl transition-colors"
+              className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-3 rounded-xl transition-colors ascii-btn"
             >
               <Save size={16} />
               Save WCA Credentials
@@ -227,15 +165,9 @@ export default function SettingsPage() {
 
         
         {/* Data Management */}
-        <div className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 bg-primary/20 rounded-lg">
-              <Trash2 className="text-primary" size={20} />
-            </div>
-            <h2 className="text-xl font-light">Data Management</h2>
-          </div>
-
-          <div className="space-y-4">
+        <div className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-6 ascii-interface">
+          <div className="ascii-header">DATA MANAGEMENT</div>
+          <div className="mt-4 space-y-4">
             <div className="flex justify-between items-center">
               <div>
                 <p className="font-medium">Total Solves</p>
@@ -243,7 +175,7 @@ export default function SettingsPage() {
               </div>
               <button
                 onClick={handleClearAllData}
-                className="bg-error hover:bg-error/90 text-error-foreground px-4 py-3 rounded-xl transition-colors"
+                className="bg-error hover:bg-error/90 text-error-foreground px-4 py-3 rounded-xl transition-colors ascii-btn"
               >
                 Clear All Data
               </button>
