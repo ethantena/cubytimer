@@ -320,7 +320,7 @@ export function MinimalisticLayout() {
       {/* Footer */}
       <div className="border-t border-border p-2">
         <div className="max-w-6xl mx-auto text-center font-mono text-xs text-muted-foreground">
-          [ PRESS_ANY_KEY_TO_START_STOP ] [ CLICK_RESET_BUTTON ]
+          [ PRESS_ANY_KEY_TO_START_STOP ] [ CLICK_RESET_BUTTON ] [ <a href="https://github.com/ethantena/cubytimer" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">GITHUB</a> ]
         </div>
       </div>
 
