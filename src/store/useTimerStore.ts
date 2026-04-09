@@ -21,8 +21,10 @@ export type Settings = {
 export type TimerState = {
   isRunning: boolean
   isReady: boolean
+  isInspecting: boolean
   startTime: number | null
   currentTime: number
+  inspectionStartTime: number | null
   solves: Solve[]
   currentEvent: string
   currentScramble: string
@@ -33,6 +35,8 @@ export type TimerActions = {
   startTimer: () => void
   stopTimer: () => void
   resetTimer: () => void
+  startInspection: () => void
+  stopInspection: () => void
   addSolve: (solve: Omit<Solve, 'id' | 'timestamp'>) => void
   removeSolve: (id: string) => void
   updateSolvePenalty: (id: string, penalty: 'none' | '+2' | 'DNF') => void
@@ -131,8 +135,10 @@ export const useTimerStore = create<TimerState & TimerActions>()(
     (set, get) => ({
       isRunning: false,
       isReady: false,
+      isInspecting: false,
       startTime: null,
       currentTime: 0,
+      inspectionStartTime: null,
       solves: [],
       currentEvent: '3x3x3',
       currentScramble: '',
@@ -146,8 +152,10 @@ export const useTimerStore = create<TimerState & TimerActions>()(
         set({ 
           isRunning: true, 
           isReady: false,
+          isInspecting: false,
           startTime: Date.now(),
-          currentTime: 0
+          currentTime: 0,
+          inspectionStartTime: null
         })
       },
 
@@ -158,7 +166,9 @@ export const useTimerStore = create<TimerState & TimerActions>()(
           set({ 
             isRunning: false, 
             currentTime: finalTime,
-            startTime: null
+            startTime: null,
+            isInspecting: false,
+            inspectionStartTime: null
           })
         }
       },
@@ -167,8 +177,29 @@ export const useTimerStore = create<TimerState & TimerActions>()(
         set({ 
           isRunning: false, 
           isReady: false,
+          isInspecting: false,
           startTime: null, 
-          currentTime: 0 
+          currentTime: 0,
+          inspectionStartTime: null
+        })
+      },
+
+      startInspection: () => {
+        set({
+          isInspecting: true,
+          isReady: true,
+          inspectionStartTime: Date.now(),
+          currentTime: 0,
+          isRunning: false,
+          startTime: null
+        })
+      },
+
+      stopInspection: () => {
+        set({
+          isInspecting: false,
+          isReady: false,
+          inspectionStartTime: null
         })
       },
 

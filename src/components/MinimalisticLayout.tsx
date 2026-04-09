@@ -13,14 +13,18 @@ export function MinimalisticLayout() {
   const {
     isRunning,
     isReady,
+    isInspecting,
     startTime,
     currentTime,
+    inspectionStartTime,
     solves,
     currentEvent,
     currentScramble,
     startTimer,
     stopTimer,
     resetTimer,
+    startInspection,
+    stopInspection,
     addSolve,
     setScramble,
     updateSolvePenalty,
@@ -30,6 +34,7 @@ export function MinimalisticLayout() {
 
   const [displayTime, setDisplayTime] = useState(0)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [inspectionWarning, setInspectionWarning] = useState<'none' | 'warning' | 'critical'>('none')
   const pathname = usePathname()
   const currentTimeRef = useRef(currentTime)
   
@@ -45,7 +50,7 @@ export function MinimalisticLayout() {
     setScramble(newScramble)
   }, [currentEvent, setScramble])
 
-  // Update display time
+  // Update display time and handle inspection warnings
   useEffect(() => {
     let interval: NodeJS.Timeout
 
@@ -53,14 +58,45 @@ export function MinimalisticLayout() {
       interval = setInterval(() => {
         setDisplayTime(Date.now() - startTime)
       }, 10)
+    } else if (isInspecting && inspectionStartTime) {
+      interval = setInterval(() => {
+        const elapsed = Date.now() - inspectionStartTime
+        const seconds = Math.floor(elapsed / 1000)
+        
+        // Handle inspection warnings
+        if (seconds >= 12) {
+          setInspectionWarning('critical')
+        } else if (seconds >= 8) {
+          setInspectionWarning('warning')
+        } else {
+          setInspectionWarning('none')
+        }
+        
+        // Stop inspection at 15 seconds
+        if (seconds >= 15) {
+          stopInspection()
+          setInspectionWarning('none')
+          // Auto-start timer when inspection time expires (DNF penalty would be handled in real competition)
+          startTimer()
+        }
+        
+        setDisplayTime(elapsed)
+      }, 100) // Update every 100ms for inspection
     } else {
-      setDisplayTime(currentTimeRef.current)
+      setDisplayTime(currentTime)
+      setInspectionWarning('none')
     }
 
     return () => clearInterval(interval)
-  }, [isRunning, startTime])
+  }, [isRunning, startTime, isInspecting, inspectionStartTime, currentTime, stopInspection, startTimer])
 
-  const formatTime = useCallback((time: number): string => {
+  const formatTime = useCallback((time: number, isInspection: boolean = false): string => {
+    if (isInspection) {
+      // Show only seconds for inspection, capped at 15
+      const seconds = Math.min(Math.floor(time / 1000), 15)
+      return seconds.toString()
+    }
+    
     const minutes = Math.floor(time / 60000)
     const seconds = Math.floor((time % 60000) / 1000)
     const milliseconds = Math.floor((time % 1000) / 10)
@@ -72,43 +108,82 @@ export function MinimalisticLayout() {
     }
   }, [])
 
-  const handleKeyPress = useCallback(() => {
-    // Start or stop timer on any key press (toggle behavior)
-    if (isRunning) {
-      // Stop timer and save solve
-      stopTimer()
-      const finalTime = Date.now() - (startTime || 0)
-      addSolve({
-        time: finalTime,
-        scramble: currentScramble,
-        event: currentEvent,
-        penalty: 'none'
-      })
-      const newScramble = generateScramble(currentEvent)
-      setScramble(newScramble)
-    } else {
-      // Start timer
-      startTimer()
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    // Ignore key presses when interacting with form elements
+    const target = event.target as HTMLElement
+    if (target.tagName === 'SELECT' || target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.contentEditable === 'true') {
+      return
     }
-  }, [isRunning, startTime, stopTimer, addSolve, currentScramble, currentEvent, setScramble, startTimer])
+    
+    // Only handle spacebar
+    if (event.code === 'Space') {
+      event.preventDefault()
+      
+      if (!isRunning && !isInspecting && !isReady) {
+        // Start inspection when spacebar is pressed
+        startInspection()
+      }
+    }
+  }, [isRunning, isInspecting, isReady, startInspection])
+
+  const handleKeyUp = useCallback((event: KeyboardEvent) => {
+    // Ignore key presses when interacting with form elements
+    const target = event.target as HTMLElement
+    if (target.tagName === 'SELECT' || target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.contentEditable === 'true') {
+      return
+    }
+    
+    // Only handle spacebar
+    if (event.code === 'Space') {
+      event.preventDefault()
+      
+      if (isInspecting && isReady) {
+        // Start timing when spacebar is released during inspection
+        stopInspection()
+        startTimer()
+      } else if (isRunning) {
+        // Stop timing when spacebar is pressed during run
+        stopTimer()
+        const finalTime = Date.now() - (startTime || 0)
+        addSolve({
+          time: finalTime,
+          scramble: currentScramble,
+          event: currentEvent,
+          penalty: 'none'
+        })
+        const newScramble = generateScramble(currentEvent)
+        setScramble(newScramble)
+      }
+    }
+  }, [isInspecting, isReady, isRunning, stopInspection, startTimer, stopTimer, startTime, addSolve, currentScramble, currentEvent, setScramble])
 
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyPress)
+    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('keyup', handleKeyUp)
     return () => {
-      window.removeEventListener('keydown', handleKeyPress)
+      window.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('keyup', handleKeyUp)
     }
-  }, [handleKeyPress])
+  }, [handleKeyDown, handleKeyUp])
 
   const getTimerColor = () => {
     if (isRunning) return 'text-green-400'
-    if (isReady) return 'text-yellow-400'
+    if (isInspecting && isReady) {
+      if (inspectionWarning === 'critical') return 'text-red-400'
+      if (inspectionWarning === 'warning') return 'text-orange-400'
+      return 'text-yellow-400'
+    }
     return 'text-foreground'
   }
 
   const getTimerStatus = () => {
-    if (isRunning) return 'Running'
-    if (isReady) return 'Ready'
-    return 'Press Space'
+    if (isRunning) return 'Running - Press Space to stop'
+    if (isInspecting && isReady) {
+      if (inspectionWarning === 'critical') return '12s! - Release Space to start!'
+      if (inspectionWarning === 'warning') return '8s! - Release Space to start!'
+      return 'Inspection - Release Space to start'
+    }
+    return 'Hold Space to inspect'
   }
 
   const handlePenalty = (solveId: string, penalty: 'none' | '+2' | 'DNF') => {
@@ -135,7 +210,7 @@ export function MinimalisticLayout() {
       <div className="border-b border-border p-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="text-sm font-mono text-white">
-            [ CUBY TIMER V2.0 ]
+            [ CubyTimer v1.0.1 ]
           </div>
           <div className="text-sm font-mono text-muted-foreground">
             [ {currentEvent} ]
@@ -246,21 +321,11 @@ export function MinimalisticLayout() {
             
             <div className="mb-8">
               <div className={`text-8xl font-mono timer-display mb-4 ${getTimerColor()} timer-ascii`}>
-                {formatTime(displayTime)}
+                {formatTime(displayTime, isInspecting)}
               </div>
               <div className="font-mono text-sm text-white">
                 [ {getTimerStatus()} ]
               </div>
-            </div>
-
-            <div className="flex justify-center gap-4">
-              <button
-                onClick={resetTimer}
-                className="ascii-btn font-mono text-sm"
-              >
-                <RotateCcw size={14} className="inline mr-2" />
-                [ RESET ]
-              </button>
             </div>
           </div>
         </div>
@@ -324,7 +389,7 @@ export function MinimalisticLayout() {
       {/* Footer */}
       <div className="border-t border-border p-2">
         <div className="max-w-6xl mx-auto text-center font-mono text-xs text-muted-foreground">
-          [ PRESS_ANY_KEY_TO_START_STOP ] [ CLICK_RESET_BUTTON ] [ <a href="https://github.com/ethantena/cubytimer" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">GITHUB</a> ]
+          [ HOLD_SPACE_TO_INSPECT ] [ RELEASE_TO_START ] [ PRESS_SPACE_TO_STOP ] [ <a href="https://github.com/ethantena/cubytimer" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">GITHUB</a> ]
         </div>
       </div>
 
