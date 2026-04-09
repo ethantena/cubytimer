@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 
 interface VSCodeTheme {
   name: string
@@ -229,34 +229,42 @@ const vscodeThemes: VSCodeTheme[] = [
 export function useTheme() {
   const [currentTheme, setCurrentTheme] = useState<VSCodeTheme>(vscodeThemes[1]) // Default to Light+
   const [isClient, setIsClient] = useState(false)
+  const isClientRef = useRef(false)
 
-  useEffect(() => {
-    setIsClient(true)
-    // Load saved theme from localStorage
-    const savedTheme = localStorage.getItem('vscode-theme')
-    if (savedTheme) {
-      const theme = vscodeThemes.find(t => t.name === savedTheme)
-      if (theme) {
-        setCurrentTheme(theme)
-        applyTheme(theme)
-      }
-    } else {
-      applyTheme(currentTheme)
-    }
-  }, [])
-
-  const applyTheme = (theme: VSCodeTheme) => {
+  const applyTheme = useCallback((theme: VSCodeTheme) => {
     const root = document.documentElement
     Object.entries(theme.colors).forEach(([key, value]) => {
       const cssVar = `--${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`
       root.style.setProperty(cssVar, value)
     })
-  }
+  }, [])
+
+  useEffect(() => {
+    // Load saved theme from localStorage
+    const savedTheme = localStorage.getItem('vscode-theme')
+    if (savedTheme) {
+      const theme = vscodeThemes.find(t => t.name === savedTheme)
+      if (theme) {
+        setTimeout(() => {
+          setCurrentTheme(theme)
+        }, 0)
+        applyTheme(theme)
+      }
+    } else {
+      applyTheme(currentTheme)
+    }
+    
+    // Set isClient in next tick to avoid synchronous setState
+    setTimeout(() => {
+      isClientRef.current = true
+      setIsClient(true)
+    }, 0)
+  }, [currentTheme, applyTheme])
 
   const changeTheme = (theme: VSCodeTheme) => {
     setCurrentTheme(theme)
     applyTheme(theme)
-    if (isClient) {
+    if (isClientRef.current) {
       localStorage.setItem('vscode-theme', theme.name)
     }
   }

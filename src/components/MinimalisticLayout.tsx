@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useTimerStore } from '@/store/useTimerStore'
 import { generateScramble } from '@/utils/scrambleGenerator'
 import { useTheme } from '@/hooks/useTheme'
-import { Play, RotateCcw, X, BarChart3, Menu, X as Close } from 'lucide-react'
+import { RotateCcw, X, BarChart3, Menu } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -31,6 +31,12 @@ export function MinimalisticLayout() {
   const [displayTime, setDisplayTime] = useState(0)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const pathname = usePathname()
+  const currentTimeRef = useRef(currentTime)
+  
+  // Update ref when currentTime changes
+  useEffect(() => {
+    currentTimeRef.current = currentTime
+  }, [currentTime])
 
   
   // Generate new scramble when event changes
@@ -48,11 +54,11 @@ export function MinimalisticLayout() {
         setDisplayTime(Date.now() - startTime)
       }, 10)
     } else {
-      setDisplayTime(currentTime)
+      setDisplayTime(currentTimeRef.current)
     }
 
     return () => clearInterval(interval)
-  }, [isRunning, startTime, currentTime])
+  }, [isRunning, startTime])
 
   const formatTime = useCallback((time: number): string => {
     const minutes = Math.floor(time / 60000)
@@ -66,7 +72,7 @@ export function MinimalisticLayout() {
     }
   }, [])
 
-  const handleKeyPress = useCallback((e: KeyboardEvent) => {
+  const handleKeyPress = useCallback(() => {
     // Start or stop timer on any key press (toggle behavior)
     if (isRunning) {
       // Stop timer and save solve
@@ -117,11 +123,9 @@ export function MinimalisticLayout() {
 
   // Calculate simple stats
   const recentSolves = solves.slice(-10)
-  const bestTime = recentSolves.length > 0 ? Math.min(...recentSolves.map(s => getEffectiveTime(s)).filter(t => t !== Infinity)) : 0
-  const averageTime = recentSolves.length > 0 ? recentSolves.map(s => getEffectiveTime(s)).filter(t => t !== Infinity).reduce((a, b) => a + b, 0) / recentSolves.filter(s => getEffectiveTime(s) !== Infinity).length : 0
 
   const navItems = [
-    { href: '/', label: 'Timer', icon: Play },
+    { href: '/', label: 'Timer', icon: RotateCcw },
     { href: '/stats', label: 'Statistics', icon: BarChart3 },
   ]
 

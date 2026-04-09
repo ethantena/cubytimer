@@ -42,24 +42,6 @@ export type TimerActions = {
   clearAllSolves: () => void
 }
 
-const WCA_EVENTS = [
-  '3x3x3',
-  '2x2x2', 
-  '4x4x4',
-  '5x5x5',
-  '6x6x6',
-  '7x7x7',
-  '3x3x3 OH',
-  '3x3x3 BLD',
-  'F2L',
-  'LL',
-  'PLL',
-  'OLL',
-  'Pyraminx',
-  'Megaminx',
-  'Skewb',
-  'Square-1'
-]
 
 const THEMES = {
   catppuccin: {
@@ -170,7 +152,7 @@ export const useTimerStore = create<TimerState & TimerActions>()(
       },
 
       stopTimer: () => {
-        const { startTime, currentTime: current, currentScramble, currentEvent } = get()
+        const { startTime } = get()
         if (startTime) {
           const finalTime = Date.now() - startTime
           set({ 

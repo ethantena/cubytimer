@@ -249,7 +249,11 @@ export default function StatsPage() {
                   <Tooltip 
                     contentStyle={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}
                     labelStyle={{ color: 'var(--foreground)' }}
-                    formatter={(value: any) => [value ? `${value}s` : 'DNF', 'Time']}
+                    formatter={(value: unknown) => {
+    const numValue = value as number | string | null | undefined
+    const timeValue = typeof numValue === 'number' ? numValue : null
+    return [timeValue ? `${timeValue}s` : 'DNF', 'Time']
+  }}
                   />
                   <Line type="monotone" dataKey="time" stroke="var(--primary)" strokeWidth={2} dot={false} />
                 </LineChart>

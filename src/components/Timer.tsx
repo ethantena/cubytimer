@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useTimerStore } from '@/store/useTimerStore'
 import { generateScramble } from '@/utils/scrambleGenerator'
 import { useErrorBoundary } from '@/components/ErrorBoundary'
-import { Play, Square, RotateCcw, Plus, X } from 'lucide-react'
+import { RotateCcw, X } from 'lucide-react'
 import { Navigation } from './Navigation'
 
 export function Timer() {
@@ -29,6 +29,12 @@ export function Timer() {
   } = useTimerStore()
 
   const [displayTime, setDisplayTime] = useState(0)
+  const currentTimeRef = useRef(currentTime)
+  
+  // Update ref when currentTime changes
+  useEffect(() => {
+    currentTimeRef.current = currentTime
+  }, [currentTime])
 
   // Generate new scramble when event changes
   useEffect(() => {
@@ -49,11 +55,11 @@ export function Timer() {
         setDisplayTime(Date.now() - startTime)
       }, 10)
     } else {
-      setDisplayTime(currentTime)
+      setDisplayTime(currentTimeRef.current)
     }
 
     return () => clearInterval(interval)
-  }, [isRunning, startTime, currentTime])
+  }, [isRunning, startTime])
 
   const formatTime = useCallback((time: number): string => {
     const minutes = Math.floor(time / 60000)
@@ -67,7 +73,7 @@ export function Timer() {
     }
   }, [])
 
-  const handleKeyPress = useCallback((e: KeyboardEvent) => {
+  const handleKeyPress = useCallback(() => {
     // Start or stop timer on any key press (toggle behavior)
     if (isRunning) {
       try {

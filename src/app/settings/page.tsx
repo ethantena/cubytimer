@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useTimerStore } from '@/store/useTimerStore'
-import { Settings, Palette, Type, User, Trash2, Save, ArrowLeft } from 'lucide-react'
+import { Save, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { ThemeSelector } from '@/components/ThemeSelector'
 
@@ -12,49 +12,17 @@ export default function SettingsPage() {
   const [wcaToken, setWcaToken] = useState(settings.wcaToken || '')
   const [saveMessage, setSaveMessage] = useState('')
 
-  const themes = [
-    { id: 'dark', name: 'Dark', colors: { bg: '#0f0f0f', primary: '#3b82f6' } },
-    { id: 'light', name: 'Light', colors: { bg: '#ffffff', primary: '#3b82f6' } },
-    { id: 'blue', name: 'Blue', colors: { bg: '#0c1929', primary: '#0ea5e9' } },
-    { id: 'green', name: 'Green', colors: { bg: '#0a1f1a', primary: '#10b981' } },
-    { id: 'purple', name: 'Purple', colors: { bg: '#1a0f2e', primary: '#a855f7' } }
-  ]
-
-  const fonts = [
+  
+  const fonts: Array<{ id: 'jetbrains' | 'inter' | 'mono', name: string }> = [
     { id: 'jetbrains', name: 'JetBrains Mono' },
     { id: 'inter', name: 'Inter' },
     { id: 'mono', name: 'System Mono' }
   ]
 
-  const handleThemeChange = (theme: string) => {
-    updateSettings({ theme: theme as any })
-    applyTheme(theme)
-  }
-
-  const applyTheme = (theme: string) => {
-    const themeConfig = themes.find(t => t.id === theme)
-    if (!themeConfig) return
-
-    const root = document.documentElement
-    root.style.setProperty('--background', themeConfig.colors.bg)
-    root.style.setProperty('--primary', themeConfig.colors.primary)
-    
-    // Update other theme colors based on theme
-    if (theme === 'light') {
-      root.style.setProperty('--foreground', '#000000')
-      root.style.setProperty('--card', '#f3f4f6')
-      root.style.setProperty('--border', '#e5e7eb')
-    } else {
-      root.style.setProperty('--foreground', '#ffffff')
-      root.style.setProperty('--card', '#1a1a1a')
-      root.style.setProperty('--border', '#333333')
-    }
-  }
-
-  const handleFontChange = (font: string) => {
-    updateSettings({ font: font as any })
-    const body = document.body
-    body.className = body.className.replace(/font-\w+/, `font-${font}`)
+  
+  const handleFontChange = (font: 'jetbrains' | 'inter' | 'mono') => {
+    updateSettings({ font })
+    // Font change will be handled by CSS variables through the theme system
   }
 
   const handleWCASave = () => {

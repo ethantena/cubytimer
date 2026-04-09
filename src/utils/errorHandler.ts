@@ -19,7 +19,7 @@ export class ErrorHandler {
     }
 
     if (error instanceof Error && 'code' in error) {
-      appError.code = (error as any).code
+      appError.code = (error as Error & { code?: string }).code
     }
 
     this.errors.push(appError)
