@@ -73,37 +73,68 @@ export function Timer() {
     }
   }, [])
 
-  const handleKeyPress = useCallback(() => {
-    // Start or stop timer on any key press (toggle behavior)
-    if (isRunning) {
-      try {
-        // Stop timer and save solve
-        stopTimer()
-        const finalTime = Date.now() - (startTime || 0)
-        addSolve({
-          time: finalTime,
-          scramble: currentScramble,
-          event: currentEvent,
-          penalty: 'none'
-        })
-        // Generate new scramble
-        const newScramble = generateScramble(currentEvent)
-        setScramble(newScramble)
-      } catch (error) {
-        captureError(error instanceof Error ? error : 'Failed to save solve', 'Timer')
-      }
-    } else {
-      // Start timer
-      startTimer()
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    // Ignore key presses when interacting with form elements
+    const target = event.target as HTMLElement
+    if (target.tagName === 'SELECT' || target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.contentEditable === 'true') {
+      return
     }
-  }, [isRunning, startTime, stopTimer, addSolve, currentScramble, currentEvent, setScramble, captureError, startTimer])
+    
+    // Only handle spacebar
+    if (event.code === 'Space') {
+      event.preventDefault()
+      
+      if (!isRunning && !isReady) {
+        // Set ready state when spacebar is pressed (like inspection ready)
+        // For simplicity, we'll just set isReady to true
+        // In a more complex implementation, you might want inspection time
+      }
+    }
+  }, [isRunning, isReady])
+
+  const handleKeyUp = useCallback((event: KeyboardEvent) => {
+    // Ignore key presses when interacting with form elements
+    const target = event.target as HTMLElement
+    if (target.tagName === 'SELECT' || target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.contentEditable === 'true') {
+      return
+    }
+    
+    // Only handle spacebar
+    if (event.code === 'Space') {
+      event.preventDefault()
+      
+      try {
+        if (isRunning) {
+          // Stop timer and save solve when spacebar is released during run
+          stopTimer()
+          const finalTime = Date.now() - (startTime || 0)
+          addSolve({
+            time: finalTime,
+            scramble: currentScramble,
+            event: currentEvent,
+            penalty: 'none'
+          })
+          // Generate new scramble
+          const newScramble = generateScramble(currentEvent)
+          setScramble(newScramble)
+        } else if (!isRunning && !isReady) {
+          // Start timer when spacebar is released (like cstimer)
+          startTimer()
+        }
+      } catch (error) {
+        captureError(error instanceof Error ? error : 'Failed to handle timer action', 'Timer')
+      }
+    }
+  }, [isRunning, isReady, startTime, stopTimer, addSolve, currentScramble, currentEvent, setScramble, captureError, startTimer])
 
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyPress)
+    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('keyup', handleKeyUp)
     return () => {
-      window.removeEventListener('keydown', handleKeyPress)
+      window.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('keyup', handleKeyUp)
     }
-  }, [handleKeyPress])
+  }, [handleKeyDown, handleKeyUp])
 
   const getTimerColor = () => {
     if (isRunning) return 'text-green-500'
@@ -112,8 +143,8 @@ export function Timer() {
   }
 
   const getTimerStatus = () => {
-    if (isRunning) return 'Running - Press any key to stop'
-    return 'Press any key to start'
+    if (isRunning) return 'Running - Release Space to stop'
+    return 'Hold Space to prepare, release to start'
   }
 
   const handlePenalty = (solveId: string, penalty: 'none' | '+2' | 'DNF') => {
