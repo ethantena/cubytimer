@@ -2,7 +2,7 @@
 
 A comprehensive, modern speedcubing timer application built with Next.js, TypeScript, and Tailwind CSS. Features advanced statistics, multiple WCA events, smart cube connectivity, and Stackmat timer support.
 
-## 🚀 Features
+##  Features
 
 ### Core Timer Features
 - **Modern Interface**: Clean, responsive design with JetBrains Mono font
@@ -30,7 +30,7 @@ A comprehensive, modern speedcubing timer application built with Next.js, TypeSc
 - **Admin Panel**: Password-protected admin interface
 - **Data Persistence**: Local storage for all settings and solves
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 - **Framework**: Next.js 16 with App Router
 - **Language**: TypeScript
@@ -40,7 +40,7 @@ A comprehensive, modern speedcubing timer application built with Next.js, TypeSc
 - **Charts**: Recharts
 - **Icons**: Lucide React
 
-## 📦 Installation
+##  Installation
 
 1. Clone the repository:
 ```bash
@@ -61,7 +61,7 @@ bun run dev
 4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 instead of installing visit https://cubytimer.com
 
-## 🎯 Usage
+##  Usage
 
 ### Basic Timer Operation
 1. Select your event from the dropdown
@@ -85,7 +85,7 @@ instead of installing visit https://cubytimer.com
 - Export/import data
 - View system statistics
 
-## 🎨 Themes
+##  Themes
 
 The application includes 5 built-in themes:
 - **Dark**: Default dark theme with blue accents
@@ -94,7 +94,7 @@ The application includes 5 built-in themes:
 - **Green**: Green-themed dark interface  
 - **Purple**: Purple-themed dark interface
 
-## 📊 Supported Events
+## Supported Events
 
 - 3x3x3
 - 2x2x2
@@ -113,14 +113,14 @@ The application includes 5 built-in themes:
 - Skewb
 - Square-1
 
-## 🔧 Configuration
+##  Configuration
 
 ### Browser Compatibility
 - **Bluetooth**: Requires Web Bluetooth API (Chrome, Edge, Opera)
 - **Microphone**: Requires Web Audio API (all modern browsers)
 - **Local Storage**: Required for data persistence
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature-name`
@@ -128,16 +128,16 @@ The application includes 5 built-in themes:
 4. Push to the branch: `git push origin feature-name`
 5. Submit a pull request
 
-## 📝 License
+##  License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - Inspired by CubeDesk and csTimer
 - WCA for event standards and scramble algorithms
 
-## 🐛 Bug Reports
+##  Bug Reports
 
 Please report bugs through the GitHub Issues page with:
 - Description of the issue
@@ -145,12 +145,8 @@ Please report bugs through the GitHub Issues page with:
 - Browser and device information
 - Screenshots if applicable
 
-## 📧 Contact
+##  Contact Me
 
 For questions or suggestions:
 - Create an issue on GitHub
 - Contact through the project website
-
----
-
-** Happy Cubing! **
